@@ -1,0 +1,19 @@
+{
+  "name": "backpro",
+  "version": "1.0.0",
+  "description": "Inicio projeto",
+  "main": "index.js",
+  "scripts": {
+   "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GabrielOlivaa/BACKPRO.git"
+  },
+  "author": "GTO",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GabrielOlivaa/BACKPRO/issues"
+  },
+  "homepage": "https://github.com/GabrielOlivaa/BACKPRO#readme"
+}
