@@ -96,7 +96,7 @@ export const productByName = (q:string) :void =>{
     
 }
 
-// ------------------
+// -----------------
 
 //                   PURCHASE
 
