@@ -128,3 +128,30 @@ OFFSET 0 ;
 SELECT * FROM produtos
 WHERE price >=1000 and price <=3500
 ORDER BY price ASC;
+
+CREATE TABLE purchases (
+   id TEXT PRIMARY KEY UNIQUE NOT NULL,
+   total_price REAL UNIQUE NOT NULL,
+   paid INTEGER NOT NULL,
+   deliverd_at TEXT,
+   buyer_id TEXT NOT NULL,
+   FOREIGN KEY (buyer_id) REFERENCES users(id)
+);
+
+INSERT INTO  purchases (id, total_price, paid, deliverd_at, buyer_id)
+VALUES
+("PR001",100, 0,NULL, "A001"),
+("PR002",250,0,NULL,"A001"),
+("PR003", 400,0, NULL, "A002"),
+("PR004", 10,0, NULL, "A002"),
+("PR005", 11,0, NULL , "A003");
+
+SELECT * FROM purchases
+INNER JOIN users
+ON purchases.buyer_id = users.id
+WHERE users.id = "A002";
+
+UPDATE purchases
+SET deliverd_at = DATETIME("NOW"),
+paid = 1
+WHERE id = "PR001";
