@@ -128,3 +128,37 @@ OFFSET 0 ;
 SELECT * FROM produtos
 WHERE price >=1000 and price <=3500
 ORDER BY price ASC;
+
+-- tabela de pedidos
+
+CREATE TABLE purchases (
+id TEXT PRIMARY KEY UNIQUE NOT NULL,
+total_price REAL UNIQUE NOT NULL,
+paid INTEGER NOT NULL,
+delivered_at TEXT, 
+buyer_id TEXT NOT NULL,
+FOREIGN KEY(buyer_id)REFERENCES users(id)
+);
+
+-- criar dois pedidos para cada usuario 
+INSERT INTO purchases(id, total_price, paid, delivered_at, buyer_id)
+VALUES
+("pu001",250,0, NULL,"A001"),
+("pu002",450,0, NULL,"A002"),
+("pu003",50,0, NULL,"A003"),
+("pu004",75,1, NULL,"A001"),
+("pu005",100,0, NULL,"A002");
+
+SELECT * FROM purchases;
+
+DROP TABLE purchases;
+
+SELECT * FROM purchases
+INNER JOIN users 
+ON purchases.buyer_id = users.id
+WHERE users.id = "A001";
+
+UPDATE purchases
+SET delivered_at = DATETIME("NOW"),
+paid = 1
+WHERE id ="p005"
