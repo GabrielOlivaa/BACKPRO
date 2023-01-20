@@ -40,7 +40,7 @@ INSERT INTO produtos (Id, name, price,category)
 VALUES("P003", "FIFA23",299, "GAMES");
 
 INSERT INTO produtos (Id, name, price, category)
-VALUES("p004","SMARTWATCH", 750, "ELETONICS");
+VALUES("P004","SMARTWATCH", 750, "ELETONICS");
 
 INSERT INTO produtos (Id,name,price,category)
 VALUES("P005", "DAYSGONE", 180, "GAMES");
@@ -138,6 +138,8 @@ CREATE TABLE purchases (
    FOREIGN KEY (buyer_id) REFERENCES users(id)
 );
 
+DROP TABLE purchases;
+
 INSERT INTO  purchases (id, total_price, paid, deliverd_at, buyer_id)
 VALUES
 ("PR001",100, 0,NULL, "A001"),
@@ -155,3 +157,40 @@ UPDATE purchases
 SET deliverd_at = DATETIME("NOW"),
 paid = 1
 WHERE id = "PR001";
+
+CREATE TABLE purchases_produtos(
+   purchase_id TEXT NOT NULL,
+   produto_id  TEXT NOT NULL,
+   quantity INTEGER NOT NULL, 
+   FOREIGN KEY (purchase_id)REFERENCES purchases(id),
+   FOREIGN KEY (produto_id)REFERENCES produtos(id)
+  
+);
+
+DROP TABLE purchases_produtos;
+
+INSERT INTO purchases_produtos (purchase_id, produto_id, quantity)
+VALUES
+("PR001","P002",1),
+("PR003","P001",2),
+("PR004","P003",1);
+
+SELECT * FROM purchases_produtos;
+
+SELECT * FROM purchases_produtos
+INNER JOIN produtos
+ON purchases_produtos.produto_id = produtos.id;
+
+SELECT * FROM purchases_produtos
+INNER JOIN purchases
+ON purchases_produtos.purchase_id = purchases.id
+INNER JOIN produtos
+ON  purchases_produtos.produto_id = produtos.id;
+
+SELECT
+ purchases_produtos.purchase_id AS codigoCompra,
+ produtos.name AS ProdutoNome,
+purchases_produtos.quantity AS quantidadeComprada
+FROM produtos
+INNER JOIN purchases_produtos
+ON produtos.id =  purchases_produtos.produto_id;
