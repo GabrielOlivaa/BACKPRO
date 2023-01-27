@@ -5,12 +5,14 @@ export const user: Tuser [] = [
     {
         id:"12345",
         email:"ricardo@gmail.com",
-        password:"rick2214"
+        password:"rick2214",
+        name:"ricardo"
     },
     {
         id:"54321",
         email:"pedro@gmail.com",
-        password:"pedro1422"
+        password:"pedro1422",
+        name:"pedro"
     }
 ]
 
@@ -19,13 +21,15 @@ export const product: Tproduct [] = [
         id:"001",
         name:"Tv",
         price:1200,
-        category:CATEGORY.ELETRONICS
+        description:"SmartTv",
+        imagemUrl:"http://"
     },
     {
         id:"002",
         name:"X-box",
         price:2000,
-        category:CATEGORY.GAME
+        description:"ultima serie",
+        imagemUrl:"http://"
     }
 ]
 
@@ -45,39 +49,41 @@ export const purchase: TPurchase[] =[
 ]
 //                      USER
 
-export const createUser = (id:string, email:string, password:string) =>{
+export const createUser = (id:string, email:string, password:string,name:string)  =>{
     const newUser:Tuser = {
         id,
         email,
-        password
+        password,
+        name
        }
        user.push(newUser)
        console.log("cadastro realizado com sucesso");
        
 }
 
-export const getAllUser = ():void => {
-    console.table(user)
+export const getAllUser = () => {
+    return user
 }
 
 // ------------------
 
 //                   PRODUCT 
 
-export const createProduct  =(id:string , name:string , price:number , category:CATEGORY)=>{
+export const createProduct  =(id:string , name:string , price:number ,description:string, imagemUrl:string )=>{
     const newProduct: Tproduct = {
         id,
         name,
         price,
-        category
+        description,
+        imagemUrl
     }
     product.push(newProduct)
     console.log("produto criado com sucesso");
     
 }
 
-export const getAllProducts = ():void =>{
-    console.table(product)
+export const getAllProducts = () =>{
+    return product
 }
 
 export const getProductsById = (idToSearch:string) : Tproduct[]=> {
