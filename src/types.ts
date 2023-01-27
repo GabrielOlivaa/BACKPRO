@@ -10,14 +10,16 @@ export enum CATEGORY{
 export type Tuser = {
 id:string,
 email:string,
-password:string
+password:string,
+name:string
 }
 
 export type Tproduct = {
 id: string,
 name:string,
 price:number,
-category:CATEGORY
+description:string,
+imagemUrl:string
 }
 
 export type TPurchase = {

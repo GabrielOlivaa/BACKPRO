@@ -3,14 +3,15 @@ import { CATEGORY } from "./types";
 import cors from 'cors';
 import { Tuser, Tproduct, TPurchase } from "./types";
 import express, {Request,  Response} from "express"
+import {db} from  "./database/knex"
 
 
 const app = express()
 app.use(express.json())
 app.use(cors())
 
-app.listen(3005, ()=>{
-    console.log("servidor rodando na porta 3005");
+app.listen(3004, ()=>{
+    console.log("servidor rodando na porta 3004");
     
 })
 
@@ -18,50 +19,59 @@ app.get('/ping', (req:Request, res:Response)=>{
     res.send('pong!')
 })
 
-//  USER 
+//   GET ALL USER 
 
-app.get('/user', (req:Request, res:Response)=>{
+app.get('/user', async (req:Request, res:Response)=>{
     try{
-        res.status(200).send(getAllUser())
+        const result = await db.raw(`SELECT * FROM users;`)
+        res.status(200).send(result)
 
-    }catch(error:any){
-        console.log(error);
-
-        if(res.statusCode===200){
+    } catch (error: any) {
+        console.log(error)
+        if (res.statusCode === 200) {
             res.status(500)
         }
-        res.send(error.mensagem)
+
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }
     }
 })
 
 // PRODUCT
-app.get('/product', (req:Request, res:Response)=>{
+app.get('/product', async (req:Request, res:Response)=>{
     try{
-        res.status(200).send(getAllProducts())
+        const result = await db.raw(`SELECT * FROM product`)
+        res.status(200).send(result)
 
     }catch(error:any){
-        console.log(error);
-
-        if(res.statusCode===200){
+        console.log(error)
+        if (res.statusCode === 200) {
             res.status(500)
         }
-        res.send(error.mensagem)
+
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }
     }
 })
 // product search
 
-app.get('/product/search', (req:Request, res:Response)=>{
+app.get('/product/search', async(req:Request, res:Response)=>{
     try{
         const q = req.query.q as string
-        if(q.length<=0){
+        if(q.length<1){
             res.status(400)
             throw new Error("A busca deve possuir um caracter");
             
         }
-        const result = product.filter((product1)=>{
-            return product1.name.toLowerCase().includes(q.toLowerCase())
+        const result  = await db.raw(`SELECT * FROM product
+        WHERE name LIKE "${q}%";`)
 
-        })
         res.status(200).send(result)
     } catch(error:any){
         console.log(error);
@@ -75,21 +85,60 @@ app.get('/product/search', (req:Request, res:Response)=>{
 
 //  user 
 
-app.post( '/user', (req:Request, res:Response)=>{
+app.post( '/user', async(req:Request, res:Response)=>{
     try{
-    const {id, email, password} = req.body as Tuser
+    const {id, email, password,name} = req.body as Tuser
 
-    if(!id){
-        res.status(404)
-        throw new Error("Coloque um id valido para criar a conta");
+    if (id !== undefined) {
+
+     if (typeof id !== 'string') {
+        res.status(400)
+        throw new Error('o id deve ser tipo string')
     }
-    if (!email){
-        res.status(404)
-        throw new Error("Coloque um email valido para criar a conta");
+
+    if (id.length <= 0) {
+        res.status(400)
+        throw new Error('o Id deve ter pelo menos um valor')
     }
-    if (!password){
+    if (id[0] !== "0") {
+        res.status(400)
+        throw new Error('o Id deve começar com zero')
+    }
+}
+
+if (email !== undefined) {
+
+    if (typeof email !== 'string') {
+        res.status(400)
+        throw new Error('o e-mail deve ser tipo string')
+    }
+
+    if (email.length <= 0) {
+        res.status(400)
+        throw new Error('o e-mail deve ter pelo menos um valor')
+    }
+
+    if (!email.includes('@')) {
+        res.status(400)
+        throw new Error('um e-mail deve ter o "@"')
+    }
+
+}
+    if (password !== undefined) {
+    if (typeof password !== 'string') {
+        res.status(400)
+        throw new Error('o password deve ser tipo number')
+    }
+
+    if (password.length < 6) {
+        res.status(400)
+        throw new Error('o password deve ter pelo menos 6 caracteres')
+    }
+}
+
+    if (!name){
         res.status(404)
-        throw new Error("Coloque uma senha valida para criar a conta");
+        throw new Error("Coloque uma nome valida para criar a conta");
         
     }
     if(user.find((user1)=>user1.id ===id)){
@@ -104,8 +153,13 @@ app.post( '/user', (req:Request, res:Response)=>{
 
     }
 
-    createUser(id, email, password)
+    await db.raw(`
+    INSERT INTO users (id,email,password, name)
+    VALUE ("${id}","${email}","${password}","${name}")
+
+    `)
     res.status(201).send("Novo usuario registrado com sucesso")
+
     }catch(error:any){
         console.log(error);
         if(res.statusCode ===200){
@@ -117,9 +171,9 @@ app.post( '/user', (req:Request, res:Response)=>{
 
 // product 
 
-app.post('/product', (req:Request, res:Response)=>{
+app.post('/product', async(req:Request, res:Response)=>{
     try{
-        const {id, name, price,category} = req.body as Tproduct
+        const {id, name, price,description,imagemUrl} = req.body as Tproduct
         if(!id){
             res.status(404)
             throw new Error("coloque um id para crair um produto");          
@@ -132,12 +186,19 @@ app.post('/product', (req:Request, res:Response)=>{
             res.status(404)
             throw new Error("coloque um preço para criar um preço");
         }
-        if(!category){
+        if(!description){
             res.status(404)
-            throw new Error("coloque uma categoria valida para criar um produto");
+            throw new Error("coloque uma descrição valida para criar um produto");
+        }
+        if(!imagemUrl){
+            res.status(404)
+            throw new Error("coloque uma imagem valida para criar um produto");
         }
         
-        createProduct(id, name, price,category)
+        await db.raw(`
+        INSERT INTO (id,name,price,description,imagemUrl)
+        VALUE ("${id}", "${name}","${price}","${description}","${imagemUrl})
+        ;`)
         res.status(201).send("Produto registrado com sucesso")
 
     }catch(error:any){
@@ -150,8 +211,10 @@ app.post('/product', (req:Request, res:Response)=>{
 })
 //      purchase 
 
-app.get('/purchase', (req:Request, res:Response)=>{
+app.post('/purchase', (req:Request, res:Response)=>{
     try{
+
+        
         const {userId,productId,quantity,totalPrice}= req.body as TPurchase
         if(!userId){
             res.status(404)
@@ -184,15 +247,21 @@ app.get('/purchase', (req:Request, res:Response)=>{
 
         const newPurchase ={  
             userId,productId,quantity,totalPrice }
+            
             purchase.push(newPurchase)
             res.status(201).send("Compra realizada com sucesso")
-    }catch(error:any){
+            
+    }catch (error: any) {
         console.log(error)
-        if(res.statusCode ===200){
+        if (res.statusCode === 200) {
             res.status(500)
         }
-        res.send(error.mensagem)
-        
+
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }
     }
 })
 
@@ -364,7 +433,8 @@ app.put(' /product/:id', (req:Request, res:Response)=>{
         const product1 = product.find((product1)=> product1.id===id)
         if(product1){
             product1.name= newName || product1.name   
-            product1.category= newCategory ||product1.category
+            // product1.price = newPrice || product1.price
+            product1.description=newCategory||product1.description
         }
         res.status(200).send("produto atualizado com sucesso")
 
