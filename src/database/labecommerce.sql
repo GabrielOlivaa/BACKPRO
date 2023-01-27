@@ -1,4 +1,4 @@
--- Active: 1673978064951@@127.0.0.1@3306
+-- Active: 1674851901675@@127.0.0.1@3306
 
 CREATE TABLE
     users (
@@ -11,36 +11,38 @@ CREATE TABLE
 
 
 CREATE TABLE
-    produtos(
+    products(
         id TEXT PRIMARY KEY UNIQUE NOT NULL,
         name TEXT NOT NULL,
         price REAL NOT NULL,
         description TEXT NOT NULL,
-        imagem_url TEXT NOT NULL
+        image_url TEXT NOT NULL
     );
 
+DROP TABLE products;
 
 CREATE TABLE
     purchases (
-        id TEXT PRIMARY KEY UNIQUE NOT NULL,
-        total_price REAL NOT NULL,
-        reated_at TEXT DEFAULT(DATETIME()) NOT NULL,
-        paid INTEGER DEFAULT(0) NOT NULL,
-        buyer TEXT NOT NULL,
-        FOREIGN KEY (buyer) REFERENCES users(id)
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    total_price REAL NOT NULL,
+    created_at TEXT DEFAULT(DATETIME()) NOT NULL,
+    paid INTEGER DEFAULT(0) NOT NULL,
+    buyer TEXT NOT NULL,
+    FOREIGN KEY (buyer) REFERENCES users(id)
     );
 
 
 CREATE TABLE
-    purchases_produtos(
-        purchase_id TEXT NOT NULL,
-        produto_id TEXT NOT NULL,
-        quantity INTEGER NOT NULL DEFAULT(1),
-        FOREIGN KEY (purchase_id) REFERENCES purchases(id),
-        FOREIGN KEY (produto_id) REFERENCES produtos(id)
+    purchases_products(
+
+    purchase_id TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT(1),
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id)
+    FOREIGN KEY (product_id) REFERENCES products(id)
     );
 
-    DROP TABLE purchases_produtos
+    DROP TABLE purchases_products;
 
     INSERT INTO users (id,name, email, password)
     VALUES
@@ -52,7 +54,7 @@ SELECT * FROM users;
 
 DROP TABLE users;
 
-INSERT INTO produtos (id,name,price,description,imagem_url)
+INSERT INTO products (id,name,price,description,image_url)
 VALUES
 ("p001","televisão",2000, "televisão 75","http://"),
 ("p002","X-box",1500, "X-box edicao especial","http://"),
@@ -60,9 +62,9 @@ VALUES
 ("p004","Fifa 23",199, "fifa midea online","http://"),
 ("p005","nfl",100, "nfl20","http://");
 
-SELECT * FROM produtos ;
+SELECT * FROM products ;
 
-DROP Table produtos;
+DROP Table products;
 
 INSERT INTO purchases (id, total_price, paid, buyer)
 VALUES 
@@ -76,7 +78,7 @@ SELECT * FROM purchases;
 
 DROP Table purchases;
 
-INSERT INTO purchases_produtos(purchase_id, produto_id, quantity)
+INSERT INTO purchases_products(purchase_id, product_id, quantity)
 VALUES
 ("pu001","p005",1),
 ("pu002","p004",2),
@@ -84,14 +86,14 @@ VALUES
 ("pu004","p003",2),
 ("pu005","p002",3);
 
-SELECT * FROM purchases_produtos ;
+SELECT * FROM purchases_products ;
 
-DROP Table purchases_produtos ;
+DROP Table purchases_products ;
 
-SELECT * FROM purchases_produtos
-INNER JOIN produtos
-ON purchases_produtos.produto_id = produto.id
+SELECT * FROM purchases_products
+INNER JOIN products
+ON purchases_products.product_id = products.id
 INNER JOIN purchases
-ON purchases_produtos.purchase_id = purchase_id
+ON purchases_produc.purchase_id = purchase_id
 INNER JOIN users
 ON purchases.buyer = users.id;      
